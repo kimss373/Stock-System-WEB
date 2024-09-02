@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  " https://mybatis.org/dtd/mybatis-3-mapper.dtd ">
+<mapper namespace="stock.dao.StockDAO">
+
+	<resultMap type="stockVO" id="stockMap">
+		<result column="stock_cd" property="stockCd" />
+		<result column="bas_dt" property="basDt" />
+		<result column="srtn_cd" property="srtnCd" />
+		<result column="isin_cd" property="isinCd" />
+		<result column="itms_nm" property="itmsNm" />
+		<result column="mrkt_ctg" property="mrktCtg" />
+		<result column="flt_rt" property="fltRt" />
+		<result column="lstg_st_cnt" property="lstgStCnt" />
+		<result column="mrkt_tot_amt" property="mrktTotAmt" />
+	</resultMap>
+
+	
+	<select id="selectAllRiseRateChart" resultMap="stockMap">
+			SELECT *
+  			FROM (SELECT * 
+		  FROM stock 
+		 WHERE flt_rt &gt; 2
+		   AND FLT_RT &lt;= 30
+		   AND bas_dt = (SELECT MAX(BAS_DT) - INTERVAL '1' DAY 
+		                   FROM STOCK)
+		 ORDER BY flt_rt DESC)
+		  WHERE rownum &lt; 16
+	</select>
+	
+	<select id="selectAllFallRateChart" resultMap="stockMap">
+		SELECT *
+		  FROM (SELECT * 
+				  FROM stock 
+				 WHERE flt_rt &lt; -2
+				   AND FLT_RT &gt;=-30
+				   AND bas_dt = (SELECT MAX(BAS_DT)-1
+				                   FROM STOCK)
+				 ORDER BY flt_rt ASC)
+		 WHERE rownum &lt; 16
+	</select>
+
+	<select id="selectAllStock" resultMap="stockMap">
+		SELECT DISTINCT srtn_cd
+  		  FROM stock
+	</select>
+
+	<select id="selectAllStockName" resultType="String" parameterType="String">
+		SELECT DISTINCT ITMS_NM
+		  FROM STOCK
+		 WHERE ITMS_NM LIKE #{query}||'%'
+	</select>
+
+	<select id="selectListStockByName" resultMap="stockMap" parameterType="String">
+		SELECT *
+		  FROM STOCK
+		 WHERE ITMS_NM = #{name}
+		 ORDER BY BAS_DT DESC
+	</select>
+	
+	<select id="getStockListLastBas" resultMap="stockMap">
+		 SELECT * 
+		   FROM stock 
+		  WHERE bas_dt = (SELECT MAX(BAS_DT)
+		                    FROM STOCK)
+	</select>
+
+	</mapper>

@@ -1,0 +1,180 @@
+@charset "UTF-8";
+
+.order-page {
+    width: 396px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+header {
+    background-color: #f5f5f5;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.account-info {
+    display: flex;
+    align-items: center;
+}
+
+.account-name {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.account-dropdown {
+    font-size: 12px;
+}
+
+.account-type {
+    font-size: 12px;
+    color: #666;
+}
+
+.switch-button {
+    background-color: #ddd;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-left: 5px;
+}
+
+.switch-button.active {
+    background-color: #ff4500;
+    color: #fff;
+}
+
+.stock-info {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.stock-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.stock-code {
+    font-size: 14px;
+    color: #666;
+}
+
+.stock-prices {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+}
+
+.order-section {
+    padding: 10px;
+}
+
+.order-type {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.order-button {
+    flex: 1;
+    background-color: #ddd;
+    border: none;
+    padding: 10px;
+    text-align: center;
+}
+
+#buyButton.order-button.active {
+    background-color: #ed2926;
+    color: #fff;
+}
+#sellButton.order-button.active {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
+.order-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.price-section,
+.amount-section,
+.total-section {
+    margin-bottom: 10px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="number"],
+select {
+    width: calc(100% - 50px);
+    padding: 5px;
+    margin-right: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.amount-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+}
+
+.amount-buttons button {
+    flex: 1;
+    padding: 5px;
+    border: 1px solid #ddd;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+    margin-right: 5px;
+}
+
+.amount-buttons button:last-child {
+    margin-right: 0;
+}
+
+.total-section {
+    display: flex;
+    justify-content: space-between;
+}
+
+.submit-button {
+    background-color: #ed2926;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+.submit-button.buy {
+    background-color: #ed2926;
+}
+
+.submit-button.sell {
+    background-color: #0d6efd;
+}
+
+.order-history {
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    background-color: #f5f5f5;
+}
+
+.history-label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.history-content {
+    color: #666;
+    font-size: 14px;
+}

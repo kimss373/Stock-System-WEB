@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  " https://mybatis.org/dtd/mybatis-3-mapper.dtd ">
+<mapper namespace="account.dao.AccountDAO">
+
+	<resultMap type="accountVO" id="accountMap">
+		<result column="account_num" property="accountNum" />
+		<result column="member_id" property="memberId" />
+		<result column="account_name" property="accountName" />
+		<result column="account_describe" property="accountDescribe" />
+		<result column="account_type" property="accountType" />
+		<result column="reg_date" property="regDate" />
+		<result column="account_pwd" property="accountPwd" />
+	</resultMap>
+	
+	<resultMap type="tradingVO" id="tradingMap">
+		<result column="trading_cd" property="tradingCd" />
+		<result column="account_num" property="accountNum" />
+		<result column="srtn_cd" property="srtnCd" />
+		<result column="stock_price" property="stockPrice" />
+		<result column="stock_count" property="stockCount" />
+		<result column="trading_type" property="tradingType" />
+	</resultMap>
+	
+	<resultMap type="stockHoldingVO" id="stockHoldingMap">
+		<result column="stock_holding_cd" property="stockHoldingCd" />
+		<result column="account_num" property="accountNum" />
+		<result column="itms_nm" property="itmsNm" />
+		<result column="srtn_cd" property="srtnCd" />
+		<result column="stock_price" property="stockPrice" />
+		<result column="stock_count" property="stockCount" />
+		<result column="stock_mean" property="stockMean" />
+	</resultMap>
+	
+	<select id="selectOneDuplicatedNum" parameterType="String" resultMap="accountMap">
+		SELECT AK.*, AN.ACCOUNT_NAME, AN.ACCOUNT_DESCRIBE 
+		  FROM ACCOUNT_KOM AK JOIN ACCOUNT_NAME AN ON AK.ACCOUNT_NUM = AN.ACCOUNT_NUM
+		 WHERE AK.ACCOUNT_NUM = #{accNum}
+	</select>
+	
+	<insert id="insertNewAccount" parameterType="accountVO">
+		INSERT INTO ACCOUNT_KOM(ACCOUNT_NUM, MEMBER_ID, BALANCE, ACCOUNT_TYPE, ACCOUNT_PWD)
+		VALUES(#{accountNum}, #{memberId}, #{balance}, '003', #{accountPwd})
+	</insert>
+	
+	<insert id="insertNewAccountName" parameterType="accountVO">
+		INSERT INTO ACCOUNT_NAME(ACCOUNT_NUM, ACCOUNT_NAME, ACCOUNT_DESCRIBE)
+		VALUES(#{accountNum}, #{accountName}, #{accountDescribe})
+	</insert>
+	
+	<select id="selectListOwnAccount" parameterType="String" resultMap="accountMap">
+		SELECT AK.*, AN.ACCOUNT_NAME, AN.ACCOUNT_DESCRIBE 
+		  FROM ACCOUNT_KOM AK JOIN ACCOUNT_NAME AN ON AK.ACCOUNT_NUM = AN.ACCOUNT_NUM
+		 WHERE AK.MEMBER_ID=#{memberId}
+	</select>
+	
+	<select id="selectOneAccountInfo" parameterType="String" resultMap="accountMap">
+		SELECT AK.*, AN.ACCOUNT_NAME, AN.ACCOUNT_DESCRIBE 
+		  FROM ACCOUNT_KOM AK JOIN ACCOUNT_NAME AN ON AK.ACCOUNT_NUM = AN.ACCOUNT_NUM
+		 WHERE AK.ACCOUNT_NUM = #{accountNum}
+ 	</select>
+ 	
+ 	<insert id="insertNewTrading" parameterType="tradingVO">
+ 		INSERT INTO TRADING(ACCOUNT_NUM, SRTN_CD, STOCK_PRICE, STOCK_COUNT, TRADING_TYPE)
+ 		VALUES(#{accountNum}, #{srtnCd}, #{stockPrice}, #{stockCount}, #{tradingType})
+ 	</insert>
+ 	
+ 	<update id="updateBalance" parameterType="java.util.HashMap">
+ 		UPDATE ACCOUNT_KOM
+ 		   SET BALANCE = BALANCE - #{price}
+ 		 WHERE ACCOUNT_NUM = #{accountNum}
+ 	</update>
+ 	
+ 	<select id="selectListTradingVOByAccountNum" parameterType="String" resultMap="tradingMap">
+ 		SELECT *
+ 		  FROM TRADING
+ 		 WHERE ACCOUNT_NUM = #{accountNum}
+ 	</select>
+	
+	<select id="selectListTradingList" parameterType="String" resultType="Map">
+		SELECT t.*, (SELECT DISTINCT(s.itms_nm)
+		               FROM STOCK s
+		              WHERE s.srtn_cd = t.SRTN_CD) AS itms_nm
+		  FROM TRADING t JOIN ACCOUNT_KOM a ON a.ACCOUNT_NUM = t.ACCOUNT_NUM
+		 WHERE a.MEMBER_ID = #{memberId}
+	</select>
+	
+	<delete id="deleteTradingByCd" parameterType="int">
+		delete
+		  from trading
+		 where trading_cd = #{trading_cd}
+	</delete>
+	
+	<insert id="insertTradingHolding" parameterType="hashmap">
+		MERGE INTO STOCK_HOLDING tgt
+		USING (
+		    SELECT 
+		        #{ACCOUNT_NUM} AS account_num,
+		        #{SRTN_CD} AS srtn_cd,
+		        #{STOCK_PRICE} AS stock_price,
+		        #{STOCK_COUNT} AS stock_count
+		    FROM dual
+		) src
+		ON (
+		    tgt.account_num = src.account_num 
+		    AND tgt.srtn_cd = src.srtn_cd
+		)
+		WHEN MATCHED THEN
+		    UPDATE SET
+		        tgt.stock_mean = (tgt.stock_price + (src.stock_price * src.stock_count)) / (tgt.stock_count+src.stock_count),
+		        tgt.stock_price = tgt.stock_price + (src.stock_price * src.stock_count),
+		        tgt.stock_count = tgt.stock_count + src.stock_count
+		WHEN NOT MATCHED THEN
+		    INSERT (
+		        account_num, 
+		        srtn_cd, 
+		        stock_price, 
+		        stock_count,
+		        stock_mean
+		    )
+		    VALUES (
+		        src.account_num, 
+		        src.srtn_cd, 
+		        (src.stock_price * src.stock_count), 
+		        src.stock_count,
+		        src.stock_price
+		    )
+	</insert>
+	
+	<insert id="insertTradingComplete" parameterType="map">
+		INSERT INTO STOCK_COMPLETE(ACCOUNT_NUM, SRTN_CD, STOCK_PRICE, STOCK_COUNT, TRADING_TYPE)
+		VALUES(#{ACCOUNT_NUM}, #{SRTN_CD}, #{STOCK_PRICE}, #{STOCK_COUNT}, #{TRADING_TYPE})
+	</insert>
+	
+	<select id="selectListHoldingStockByAccountNum" parameterType="String" resultMap="stockHoldingMap">
+		SELECT sh.*, tmp.ITMS_NM as ITMS_NM
+		  FROM STOCK_HOLDING sh JOIN (SELECT * FROM stock WHERE STOCK.BAS_DT = '2024-07-01') tmp ON tmp.SRTN_CD = sh.SRTN_CD
+		 WHERE sh.account_num = #{accountNum}
+	</select>
+	
+	<select id="selectOneStockHoldingByAccNumAndItmsNm" parameterType="hashmap" resultMap="stockHoldingMap">
+		SELECT sh.* , tmp.ITMS_NM as ITMS_NM
+		  FROM STOCK_HOLDING sh  JOIN (SELECT * FROM stock WHERE STOCK.BAS_DT = '2024-07-01') tmp ON tmp.SRTN_CD = sh.SRTN_CD
+		 WHERE sh.account_num = #{ACCOUNT_NUM}
+		   AND sh.SRTN_CD = #{SRTN_CD}
+	</select>
+	
+	<delete id="deleteStockHoldingByAccNumAndItmsNm" parameterType="map">
+		DELETE FROM STOCK_HOLDING
+		 WHERE ACCOUNT_NUM = #{ACCOUNT_NUM}
+		   AND SRTN_CD = #{SRTN_CD}
+	</delete>
+	
+	<update id="updateStockHoldingBySell" parameterType="map">
+		UPDATE STOCK_HOLDING
+		   SET STOCK_PRICE = round(STOCK_PRICE - (STOCK_MEAN * #{STOCK_COUNT})),
+		       STOCK_COUNT = STOCK_COUNT - #{STOCK_COUNT}
+		 WHERE ACCOUNT_NUM = #{ACCOUNT_NUM}
+		   AND SRTN_CD = #{SRTN_CD}
+	</update>
+	
+	<update id="updateAccountBalanceBySell" parameterType="map">
+		UPDATE ACCOUNT_KOM
+		   SET BALANCE = BALANCE + ROUND(#{STOCK_PRICE} * #{STOCK_COUNT})
+		 WHERE ACCOUNT_NUM = #{ACCOUNT_NUM}
+	</update>
+	
+	<insert id="insertBuyAccountHistory" parameterType="map">
+		INSERT INTO ACCOUNT_HISTORY_KOM(HISTORY_NUM, ACCOUNT_NUM, YOUR_ACCOUNT_NUM, MONEY, HISTORY_TYPE, balance)
+		VALUES(SQL_TBL_ACCOUNT_HISTORY_HISTORY_NUM_KOM.NEXTVAL, #{ACCOUNT_NUM}, #{ITMS_NM}, (#{STOCK_PRICE} * #{STOCK_COUNT}), 99, #{balance})
+	</insert>
+	
+	<insert id="insertSellAccountHistory" parameterType="map">
+		INSERT INTO ACCOUNT_HISTORY_KOM(HISTORY_NUM, ACCOUNT_NUM, YOUR_ACCOUNT_NUM, MONEY, HISTORY_TYPE, balance)
+		VALUES(SQL_TBL_ACCOUNT_HISTORY_HISTORY_NUM_KOM.NEXTVAL, #{ACCOUNT_NUM}, #{ITMS_NM}, (#{STOCK_PRICE} * #{STOCK_COUNT}), 98, #{balance})
+	</insert>
+	
+</mapper>
