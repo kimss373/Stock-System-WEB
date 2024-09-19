@@ -7,7 +7,7 @@ JSP(JavaServer Pages)와 서블릿(Servlet)을 활용하여 MVC(Model-View-Contr
 ### 개발 환경
 1. Java17, JavaScript, Oracle-SQL, HTML5/CSS3
 2. Oracle
-3. Window10, GIthub
+3. Window10, Github
 
 ### 사용 기술
 1. MyBatis - SQL 쿼리를 Java 분리하여 간결한 코드로 작성하기 위해 사용
@@ -17,17 +17,15 @@ JSP(JavaServer Pages)와 서블릿(Servlet)을 활용하여 MVC(Model-View-Contr
 5. DB링크 - 증권, 은행, 카드 같은 다른 웹 사이트와 확장성을 확보하고 DB를 공유하기 위해 사용
 6. Redis - 하나의 사이트에서 로그인을 하더라도 다른 곳에서 까지 로그인이 유지되는 것을 구현하기 위해 사용
 
+## 세부 기능
+1. 회원 별 모의 계좌 생성 및 관리
+2. 주식 api를 이용해 이전날까지의 데이터를 database에 저장
+3. 실시간 변동되는 데이터를 사용하는데의 한계, 이전날까지의 데이터를 이용해 2초마다 상한, 하한가 사이로 주가가 변동되도록 구현
+4. 주식 검색, 드랍 다운 자동완성
+5. 주가 변동 그래프 제공
+6. 가격 변동이 큰 주식의 정보 제공
+7. 주식 매도, 매수
 
-- 프로젝트 기간 : 2024년 6월 19일 ~ 2024년 7월 3일
+## ERD
 
-- 프로젝트 인원 : 개인
 
-- 사용 언어 및 개발 환경 : JAVA, JSP, Servlet, MyBatis, HTML, JavaScript, JQuery, Eclipse, Tomcat
-
-- 세부 기능 : 회원 별 모의 계좌 생성 및 관리
-              주식 api를 이용해 이전날까지의 데이터를 database에 저장
-              실시간 변동되는 데이터를 사용하는데의 한계, 이전날까지의 데이터를 이용해 2초마다 상한, 하한가 사이로 주가가 변동되도록 구현
-              주식 검색, 드랍 다운 자동완성
-              주가 변동 그래프 제공
-              가격 변동이 큰 주식의 정보 제공
-              주식 매도, 매수
